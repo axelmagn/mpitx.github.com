@@ -1,22 +1,126 @@
 % vim: syntax=tex:
 \section{Significance}
 
-\texttt{CUDA+MPI} will serve to better utilization of existing computing
-resources. In other words, it will give us high compute power at low cost. Many
-personal computers have a \gls{cuda} graphics card. It is more cost effective
-to build a cluster of multiple computers than to purchase a supercomputer to
-perform high performance computing. The reason for the low costs stem from the
-fact that clusters are built of components which are sold in high volumes
-\cite{erdt2008automatic}. \texttt{CUDA+MPI} will have the advantage of handling
-heterogeneous distributed computing. In other words, \texttt{CUDA+MPI} avoids
-hardware limitations. All the computers participating in the cluster do not
-need to have the same model of \gls{cuda}-enabled \gls{gpu} cards. This will
-also give us the freedom to easily add new nodes to the cluster as needed.
+To gain a better understanding of the significance of the problem let's examine
+some pseudo code for computing element-wise vector summation. [Notice, this is
+an example problem for the sake of example.]
 
-Since \texttt{CUDA+MPI} will operate in a heterogeneous cluster it will manage
-the job requests from the user to be run on a heterogeneous cluster of
-\gls{gpu}-capable computers. In order to decide job priority, amount of work
-and availability of devices will be considered. In addition to improved
-performance, the proposed framework will grant researchers and scientists the
-assurance that the heterogeneous cluster will be optimized for computing
-without requiring extra effort and thought.
+\subsection{\texttt{CUDA} and \texttt{MPI} Vector Summation}
+
+First, let's look at the pseudo code of the vector summation without the
+framework. Notice, this code is executed on each node, $rank$ is the current
+node we are using. This simplifies  on the \gls{mpi} side; but we can just as
+easily do this differently.
+
+\begin{algorithm}
+\begin{algorithmic}
+\Function{add}{$slice\_a,slice\_b$}
+    \Comment{Actual addition is done on GPU}
+    \State{$slice\_c \gets slice\_a + slice\_b$}
+    \State{\Return{$slice\_c$}}
+\EndFunction{}
+\Function{Compute}{$card\_max,world\_size,N,a,b$}
+    \Comment{Split Data and Compute Sum}
+    \Comment{Ran on all nodes part of the \texttt{mpi} world}
+    \State{$c \gets empty\_like(a)$}
+    \State{$M \gets floor((N + card\_max - 1) / card\_max)$}
+    \State{$m \gets floor((M + world\_size - 1) / world\_size)$}
+    \For{$i < m$}
+        \State{$slice\_low \gets (rank * 2 + i) * card\_max$}
+        \State{$slice\_high \gets (rank * 2 + (i + 1)) * card\_max$}
+        \State{$c[slice\_low:slice\_high] \gets add(a[slice\_low:slice\_high],
+                                                   b[slice\_low:slice\_high])$}
+    \EndFor{}
+    \State{\Return{$c$}}
+\EndFunction{}
+\end{algorithmic}
+\label{alg:cuda_mpi_vsum}
+\caption{Algorithm of \texttt{CUDA} and \texttt{MPI} Element-wise Vector
+Summation}
+\end{algorithm}
+
+The \texttt{ADD} function is uninteresting but defined for completeness. The
+\texttt{COMPUTE} function, on the other hand, has some complexities and other
+difficulties. Namely, the setting of $M$ and $m$, the integer number of groups
+to be computed and the integer number of slices per node to be computed,
+respectively. You can notice our problem code (element-wise vector summation)
+is tightly coupled with the slicing/ division code. Further, setting $M$ and
+$m$ can be complicated and difficult to get correct, distracting the
+researcher/ developer from the real problem. This is a simple problem too.
+
+\subsection{\texttt{OpenCUDA+MPI} Vector Summation}
+
+Next, let's look at what the intended framework will do vector summation. We
+will do this in two separate chunks: the framework's high-level definition and
+then user function the framework is given.
+
+\subsubsection{The Framework}
+
+\begin{algorithm}
+\begin{algorithmic}
+\Function{Master}{$size,world\_size$}
+    \Comment{Split data as appropriate and send to nodes}
+    \State{$card\_max \gets query\_max\_mem()$}
+    \State{$M \gets floor((N + card\_max - 1) / card\_max)$}
+    \State{$m \gets floor((M + world\_size - 1) / world\_size)$}
+    \ForAll{$r < world\_size$}
+        \State{$slice\_low \gets (r * 2 + i) * card\_max$}
+        \State{$slice\_high \gets (r * 2 + m) * card\_max$}
+        \State{Send indices from low to high to node of rank $r$}
+    \EndFor{}
+\EndFunction{}
+\Function{Minion}{$data,user\_fn$}
+    \Comment{Receive Indices and Compute Results using user function}
+    \State{$slice\_low \gets recv()$}
+    \State{$slice\_high \gets recv()$}
+    \State{$results \gets user\_fn(data[slice\_low:slice\_high])$}
+    \State{Send back results or write them to disk}
+\EndFunction{}
+\end{algorithmic}
+\label{alg:ocmf}
+\caption{\texttt{OpenCUDA+MPI} Framework Pseudo Code}
+\end{algorithm}
+
+From \cref{alg:ocmf}, notice, we are purposefully being vague and abstract
+here.  The goal of the framework is not to do vector summations but to abstract
+away difficult and repetitive parts of distributed and parallel code.
+
+\subsubsection{User Code}
+
+The user code will be run on all minion nodes of the \gls{mpi} job. Further,
+because the user code doesn't have to deal with splitting the data or sending
+the data to other nodes, it is incredibly simple.
+
+\begin{algorithm}
+\begin{algorithmic}
+\Function{vector\_add}{$data$}
+    \Comment{Element-Wise Vector Summation}
+    \State{$slice\_c \gets data[0] + data[1]$}
+    \State{\Return{$slice\_c$}}
+\EndFunction{}
+\end{algorithmic}
+\label{alg:ocmf_user_code}
+\caption{User code of the framework}
+\end{algorithm}
+
+\subsubsection{Chaining the Code Together}
+
+Tying the code together is actually quite simple as well.
+
+\begin{algorithm}
+\begin{algorithmic}
+\Function{main}{$rank$}
+    \If{$rank == 0$} \State{$master(...)$}
+    \Else \State{$minion(...)$}
+    \EndIf{}
+\EndFunction{}
+\end{algorithmic}
+\label{alg:run_code}
+\caption{Combining the framework with user code}
+\end{algorithm}
+
+Once this is put together with \cref{alg:run_code} we will be given the same
+result as the first example (that doesn't use the framework). However, the
+benefit of the separation is that the user function is easier to manage and
+isn't coupled to other confounding code. Both of these niceties should grant
+the benefit of better and easier to understand distributed and parallel code.
