@@ -1,0 +1,41 @@
+% vim: syntax=tex:
+\section{Appendix}
+
+\subsection{Algorithms}
+
+\begin{algorithm}
+\begin{algorithmic}
+\Function{Master}{$size,world\_size$}
+    \Comment{Split data as appropriate and send to nodes}
+    \State{$card\_max \gets query\_max\_mem()$}
+    \State{$M \gets floor((N + card\_max - 1) / card\_max)$}
+    \State{$m \gets floor((M + world\_size - 1) / world\_size)$}
+    \ForAll{$r < world\_size$}
+        \State{$slice\_low \gets (r * 2 + i) * card\_max$}
+        \State{$slice\_high \gets (r * 2 + m) * card\_max$}
+        \State{Send indices from low to high to node of rank $r$}
+    \EndFor{}
+\EndFunction{}
+\Function{Minion}{$data,user\_fn$}
+    \Comment{Receive Indices and Compute Results using user function}
+    \State{$slice\_low \gets recv()$}
+    \State{$slice\_high \gets recv()$}
+    \State{$results \gets user\_fn(data[slice\_low:slice\_high])$}
+    \State{Send back results or write them to disk}
+\EndFunction{}
+\end{algorithmic}
+\label{alg:ocmf}
+\caption{\texttt{OpenCUDA+MPI} Framework Pseudo Code}
+\end{algorithm}
+
+\begin{algorithm}
+\begin{algorithmic}
+\Function{main}{$rank$}
+    \If{$rank == 0$} \State{$master(\dots{})$}
+    \Else \State{$minion(\dots{})$}
+    \EndIf{}
+\EndFunction{}
+\end{algorithmic}
+\label{alg:run_code}
+\caption{Combining the framework with user code}
+\end{algorithm}
