@@ -34,9 +34,9 @@ easily do this differently.
     \State{\Return{$c$}}
 \EndFunction{}
 \end{algorithmic}
-\label{alg:cuda_mpi_vsum}
 \caption{Algorithm of \texttt{CUDA} and \texttt{MPI} Element-wise Vector
 Summation}
+\label{alg:cuda_mpi_vsum}
 \end{algorithm}
 
 The \texttt{ADD} function is uninteresting but defined for completeness. The
@@ -77,8 +77,8 @@ then user function the framework is given.
     \State{Send back results or write them to disk}
 \EndFunction{}
 \end{algorithmic}
-\label{alg:ocmf}
 \caption{\texttt{OpenCUDA+MPI} Framework Pseudo Code}
+\label{alg:ocmf}
 \end{algorithm}
 
 From \cref{alg:ocmf}, notice, we are purposefully being vague and abstract
@@ -99,8 +99,8 @@ the data to other nodes, it is incredibly simple.
     \State{\Return{$slice\_c$}}
 \EndFunction{}
 \end{algorithmic}
-\label{alg:ocmf_user_code}
 \caption{User code of the framework}
+\label{alg:ocmf_user_code}
 \end{algorithm}
 
 \subsubsection{Chaining the Code Together}
@@ -115,8 +115,8 @@ Tying the code together is actually quite simple as well.
     \EndIf{}
 \EndFunction{}
 \end{algorithmic}
-\label{alg:run_code}
 \caption{Combining the framework with user code}
+\label{alg:run_code}
 \end{algorithm}
 
 Once this is put together with \cref{alg:run_code} we will be given the same
