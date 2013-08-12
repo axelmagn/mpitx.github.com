@@ -50,43 +50,6 @@ researcher/ developer from the real problem. This is a simple problem too.
 
 \subsection{\texttt{OpenCUDA+MPI} Vector Summation}
 
-Next, let's look at what the intended framework will do vector summation. We
-will do this in two separate chunks: the framework's high-level definition and
-then user function the framework is given.
-
-\subsubsection{The Framework}
-
-\begin{algorithm}
-\begin{algorithmic}
-\Function{Master}{$size,world\_size$}
-    \Comment{Split data as appropriate and send to nodes}
-    \State{$card\_max \gets query\_max\_mem()$}
-    \State{$M \gets floor((N + card\_max - 1) / card\_max)$}
-    \State{$m \gets floor((M + world\_size - 1) / world\_size)$}
-    \ForAll{$r < world\_size$}
-        \State{$slice\_low \gets (r * 2 + i) * card\_max$}
-        \State{$slice\_high \gets (r * 2 + m) * card\_max$}
-        \State{Send indices from low to high to node of rank $r$}
-    \EndFor{}
-\EndFunction{}
-\Function{Minion}{$data,user\_fn$}
-    \Comment{Receive Indices and Compute Results using user function}
-    \State{$slice\_low \gets recv()$}
-    \State{$slice\_high \gets recv()$}
-    \State{$results \gets user\_fn(data[slice\_low:slice\_high])$}
-    \State{Send back results or write them to disk}
-\EndFunction{}
-\end{algorithmic}
-\caption{\texttt{OpenCUDA+MPI} Framework Pseudo Code}
-\label{alg:ocmf}
-\end{algorithm}
-
-From \cref{alg:ocmf}, notice, we are purposefully being vague and abstract
-here.  The goal of the framework is not to do vector summations but to abstract
-away difficult and repetitive parts of distributed and parallel code.
-
-\subsubsection{User Code}
-
 The user code will be run on all minion nodes of the \gls{mpi} job. Further,
 because the user code doesn't have to deal with splitting the data or sending
 the data to other nodes, it is incredibly simple.
@@ -103,24 +66,11 @@ the data to other nodes, it is incredibly simple.
 \label{alg:ocmf_user_code}
 \end{algorithm}
 
-\subsubsection{Chaining the Code Together}
+The framework algorithm can be found in the appendix \cref{alg:ocmf}.
 
-Tying the code together is actually quite simple as well.
-
-\begin{algorithm}
-\begin{algorithmic}
-\Function{main}{$rank$}
-    \If{$rank == 0$} \State{$master(...)$}
-    \Else \State{$minion(...)$}
-    \EndIf{}
-\EndFunction{}
-\end{algorithmic}
-\caption{Combining the framework with user code}
-\label{alg:run_code}
-\end{algorithm}
-
-Once this is put together with \cref{alg:run_code} we will be given the same
-result as the first example (that doesn't use the framework). However, the
-benefit of the separation is that the user function is easier to manage and
-isn't coupled to other confounding code. Both of these niceties should grant
-the benefit of better and easier to understand distributed and parallel code.
+Once the user code is put together with the framework using \cref{alg:run_code}
+we will be given the same result as the first example (that doesn't use the
+framework). The benefit of the separation is that the user function is easier
+to manage and isn't coupled to other confounding code. Both of these niceties
+should grant the benefit of better and easier to understand distributed and
+parallel code.
