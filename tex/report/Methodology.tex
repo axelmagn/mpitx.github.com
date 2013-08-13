@@ -23,7 +23,7 @@ the Computer Science department of Boise State University. We will use
 \gls{mpi} because it has established itself as the de-facto interface for cross
 process communication \cite{website:MPI-Tutorial}. To allow for interfacing
 with \texttt{Python} \cite{website:mpi-4-python}, we will use \texttt{mpi4py}
-because of its maturity and implementation completeness.
+because of the library's maturity and implementation completeness.
 
 \subsection{CUDA}
 
@@ -34,10 +34,11 @@ established library for \gls{gpu} computing.
 \subsection{\texttt{OpenCUDA+MPI}}
 
 Our frameworks' goal is to make accessible the power of \gls{cluster} computing
-without necessarily knowing in-depth the complexities of inter-computer related
-communication. Further, in doing so, we would like to expose functionality that
-may not be available even in more established \gls{cluster} libraries and
-frameworks. Namely, facilities for debugging and profiling.
+without necessarily possessing in-depth knowledge of the complexities of
+inter-computer related communication. Further, in doing so, we would like to
+expose functionality that may not be available even in more established
+\gls{cluster} libraries and frameworks. Namely, facilities for debugging and
+profiling.
 
 \subsection{Testing}
 
@@ -48,8 +49,9 @@ from a Computerized Tomographic angiography--also called CT angiography
 scans--is important for creating oncologic surgery planning tools as well as
 medical visualization applications \cite{erdt2008automatic}.  Currently, we use
 a single \gls{gpu} to extract vascular structures from a CT angiography scan,
-which is computationally intensive. The following test programs will be
-developed as time allows:
+which is computationally intensive.
+
+The following test programs will be developed as time allows:
 
 \begin{itemize}
     \item N-Body Simulation
@@ -57,7 +59,7 @@ developed as time allows:
 \end{itemize}
 
 Every test program will be evaluated in three categories: \gls{cpu}-only,
-\gls{cuda}-only, \gls{cuda} + \gls{mpi} and \texttt{OpenCUDA+MPI}. Having all
+\gls{cuda}-only, \gls{cuda} and \gls{mpi} and \texttt{OpenCUDA+MPI}. Having all
 of the prior solutions that do \emph{not} use the framework provides a baseline
 time comparison and provide immense insights into the pains and difficulties we
 are actually attempting to solve.
