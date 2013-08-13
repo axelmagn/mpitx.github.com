@@ -3,14 +3,14 @@
 
 \subsection{Vector Summation}
 
-Our first developed test program was a $ 10^9 $ element wise vector summation
-problem. This is a simple and, as we will see, a bad example of using a cluster
-to speed up the computational time required. Although we did see a increase in
-performance, the cost of \gls{io} far out weighs the benefit. Specifically, to
-do the computation on one machine (one \gls{cpu}), it took a \gls{wall_time} of
-$254$ seconds (about $4$ minutes) and a \gls{cpu_time} of $13.7$ seconds.
-Further, to do the computation using a single \gls{gpu} took about $4172$
-seconds (\gls{wall_time}) or about $70$ minutes, $13.83$ seconds
+Our first developed test program was a $ 10 $ billion element wise vector
+summation problem. This is a simple and, as we will see, a bad example of using
+a cluster to speed up the computational time required. Although we did see a
+increase in performance, the cost of \gls{io} far out weighs the benefit.
+Specifically, to do the computation on one machine (one \gls{cpu}), it took a
+\gls{wall_time} of $254$ seconds (about $4$ minutes) and a \gls{cpu_time} of
+$13.7$ seconds.  Further, to do the computation using a single \gls{gpu} took
+about $4172$ seconds (\gls{wall_time}) or about $70$ minutes, $13.83$ seconds
 (\gls{cpu_time}) while the computing the summation of the cluster took about
 $3177$ seconds (\gls{wall_time}) or about $50$ minutes, $10.51$ seconds
 (\gls{cpu_time}). Our \gls{cpu} only implementation took the least amount of
