@@ -48,11 +48,16 @@ summation}
 
 \subsection{N-Body Problem}
 
+The \texttt{N-Body} problem is a simulation of a system of $N$ bodies and their
+gravitational (or other force) interaction with each other calculated over a
+set of time steps. Each time step will calculate and update positions and other
+attributes of each body in the system.
+
 We have several sizes of the \texttt{N-Body} problem that we tested with:
 $2,001$ particles, $20,000$ particles, $200,000$ particles, $2,000,000$, and
 $20,000,000$ particles.\\
 
-The computational times are for only one time step. The method for computing
+The computational times are for a single time step. The method for computing
 the gravitational potential is an adaptation of the \gls{p3m} method. The
 benefit of using this method is we are able to nicely distribute the problem
 over the \gls{cluster} and / or over a \gls{gpu} (because of memory
