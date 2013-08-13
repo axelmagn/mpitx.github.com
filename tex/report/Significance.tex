@@ -42,10 +42,10 @@ The \texttt{ADD} function is uninteresting but defined for completeness. The
 \texttt{COMPUTE} function, on the other hand, has some complexities and other
 difficulties. Namely, the setting of $M$ and $m$, the integer number of groups
 to be computed and the integer number of slices per node to be computed,
-respectively. You can notice our problem code (element-wise vector summation)
-is tightly coupled with the slicing/ division code. Further, setting $M$ and
-$m$ can be complicated and difficult to get correct, distracting the
-researcher/ developer from the real problem. This is a simple problem too.
+respectively. You can notice our algorithm (element-wise vector summation) is
+tightly coupled with the slicing/ division code. Even in such a simple
+computational problem, setting $M$ and $m$ can be complicated and difficult to
+get correct, distracting the researcher/ developer from the real problem.
 
 \subsection{\texttt{OpenCUDA+MPI} Vector Summation}
 
